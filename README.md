@@ -10,7 +10,8 @@ One image that sums up the world's news of **Friday 20 November 2026**, drawn as
 
 ## What is on the page
 
-Five drawn stories, chosen for consequence and spread across regions and fields:
+36 stories, every one of them from that Friday: 3 drawn leads, 10 drawn cards and 23 numbered briefs, with a
+pin map and a date check. The five biggest:
 
 | Story | Where | Field |
 | --- | --- | --- |
@@ -20,18 +21,22 @@ Five drawn stories, chosen for consequence and spread across regions and fields:
 | AI sell-off: Taiex −6.2%, Kospi −5.2%, Nikkei −5.1% | Asia | Markets |
 | UK and EU agree a post-Brexit reset deal | Brussels | Diplomacy |
 
-Eight one-line briefs under them cover the rest of the day's coverage: the Trump–Xi–Putin declaration at APEC in
-Shenzhen, the ICJ's genocide ruling against Myanmar, Somalia expelling the UAE ambassador, Denmark's vote on the
-US–Greenland security pact, Anthropic's shares after its IPO, Latin American currencies, the EU's proposed
-Ukraine loan, and the FIFA U-17 World Cup in Qatar.
+The other cards: a Russian missile falling inside Poland, Italy's general strike, Japan's October inflation,
+China's unchanged lending rates, Glenn Phillips's 118 against India, Alcaraz at the ATP Finals, Xi and Albanese
+in Shenzhen, and the search off Senegal after a migrant boat capsized.
+
+Stories that broke on Thursday 19 November (the Trump–Xi–Putin declaration, the ICJ's Myanmar ruling, Anthropic's
+market debut, Denmark's Greenland vote, Somalia expelling the UAE ambassador) are left out on purpose and named
+in the page's date check.
 
 Every item was checked against same-day reporting (RFE/RL, Kyiv Independent, NBC News, UN News, CNN, UPI,
 Bloomberg, France 24, CBS News and others) before it went on the page. Figures are the ones those reports gave.
 
 ## How it is made
 
-- `art/front-page.html` is the page: one hand-written 1024×1024 SVG. No photographs, no logos, no copied artwork.
-- `art/render.sh` renders it to `entry.png` with a headless Chromium browser.
+- `art/build.mjs` holds the stories and every drawing, and writes the page as one 1024×1024 SVG
+  (`art/front-page.html`, generated). No photographs, no logos, no copied artwork.
+- `art/render.sh` runs the build and renders the page to `entry.png` with a headless Chromium browser.
 - `main.ts` checks `entry.png` against the contest's limits (PNG, at most 1 MiB, at most 1024×1024) and writes the
   same bytes to `/output/entry.png`. Standard library only, no network.
 

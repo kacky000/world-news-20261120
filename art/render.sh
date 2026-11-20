@@ -6,6 +6,8 @@ browser="${BROWSER_BIN:-/c/Program Files/Google/Chrome/Application/chrome.exe}"
 cd "$(dirname "$0")/.."
 # Git Bash on Windows: pwd -W gives the C:/... form the browser needs; elsewhere plain pwd.
 root="$(pwd -W 2>/dev/null || pwd)"
+# front-page.html is generated (and git-ignored): build it from art/build.mjs first.
+node art/build.mjs
 "$browser" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
   --window-size=1024,1024 --screenshot="$root/entry.png" "file:///$root/art/front-page.html"
 node -e "
