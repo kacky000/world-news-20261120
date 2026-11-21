@@ -42,7 +42,7 @@ function disc(cx, cy, n, color, r = 9) {
 }
 
 /** The name plate on a drawing: says in two or three words which story the picture is. */
-function tag(x, y, label, size = 11.500) {
+function tag(x, y, label, size = 12) {
   const w = Math.round(label.length * size * 0.660) + 12;
   const h = size + 7;
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${INK}" stroke="${GOLD}" stroke-width="1"/>` +
@@ -317,7 +317,7 @@ function masthead() {
     text(16, 30, 'THE WORLD IN ONE DAY', 14, { bold: true, ls: 2.500 }),
     text(1008, 30, `${total} STORIES · 7 REGIONS · EVERY ONE FROM THIS FRIDAY`, 12.500, { bold: true, ls: 1, fill: GREY, anchor: 'end' }),
     `<rect x="16" y="38" width="992" height="74" fill="${INK}"/>`,
-    text(512, 94, 'FRIDAY 20 NOVEMBER 2026', 58, { serif: true, bold: true, fill: '#ffffff', anchor: 'middle' }),
+    text(512, 96, 'FRIDAY 20 NOVEMBER 2026', 63, { serif: true, bold: true, fill: '#ffffff', anchor: 'middle' }),
     text(512, 131, 'Missiles on Kyiv’s bridges  ·  Cyclone Akvan ashore in India  ·  COP31 stuck on its last day  ·  AI sell-off  ·  UK–EU reset',
       13.500, { serif: true, italic: true, fill: RED, anchor: 'middle' }),
     `<line x1="16" y1="140" x2="1008" y2="140" stroke="${INK}" stroke-width="2"/>`,
