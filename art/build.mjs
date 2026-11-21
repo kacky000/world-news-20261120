@@ -1,6 +1,6 @@
 // Builds art/front-page.html: a 1024x1024 SVG front page for Friday 20 November 2026.
-// 41 stories, every one of them from that Friday: 3 drawn leads, 10 drawn cards, 28 numbered briefs,
-// a key-figures strip, a region bar, a pin map and a date check.
+// 49 stories, every one of them from that Friday: 3 drawn leads, 10 drawn cards, 36 numbered briefs,
+// the day by the clock in UTC, a how-sure tag on each drawn story, a pin map and a dated date check.
 // Run from the repository root:  node art/build.mjs && bash art/render.sh
 import { writeFileSync } from 'node:fs';
 
@@ -231,136 +231,158 @@ const senegal = () => `
 
 // ---------------------------------------------------------------- the day's stories
 
+// How sure each drawn story is: the tag under it says who stands behind it.
+const SURE = {
+  CONFIRMED: '#1f7a4d', // two or more outlets
+  OFFICIAL: '#1d4e9e', // the body itself: a ministry, a statistics office, a scorecard
+  REPORTED: '#6b5a45', // one outlet
+};
+
 const leads = [
-  { n: 1, region: 'EUROPE', field: 'UKRAINE WAR', src: 'Reuters, RFE/RL', art: kyiv, lon: 30.5, lat: 50.4,
+  { n: 1, region: 'EUROPE', field: 'WAR', f: 'War', sure: 'CONFIRMED', src: 'Reuters, RFE/RL', art: kyiv, lon: 30.5, lat: 50.4,
     head: ['Russian missiles hit three', 'Dnipro bridges in Kyiv'],
     sub: ['Eight killed across Ukraine, officials say. Biggest', 'strike yet on the capital’s crossings; power cut.'] },
-  { n: 2, region: 'ASIA', field: 'CYCLONE', src: 'The Quint', art: cyclone, lon: 84.9, lat: 19.3,
+  { n: 2, region: 'ASIA', field: 'CYCLONE', f: 'Weather', sure: 'OFFICIAL', src: 'India’s weather office', art: cyclone, lon: 84.9, lat: 19.3,
     head: ['Cyclone Akvan makes', 'landfall in eastern India'],
-    sub: ['Storm crosses the Odisha coast near Gopalpur;', 'shelters open, trains and flights disrupted.'] },
-  { n: 3, region: 'GLOBAL', field: 'CLIMATE', src: 'CNN', art: cop, lon: 30.7, lat: 36.9,
+    sub: ['Storm crosses the Odisha coast near Gopalpur at', 'about 8 am; gusts up to 110 km/h, ports on alert.'] },
+  { n: 3, region: 'GLOBAL', field: 'CLIMATE', f: 'Climate', sure: 'REPORTED', src: 'CNN', art: cop, lon: 30.7, lat: 36.9,
     head: ['COP31 deadlocked on', 'its final day in Antalya'],
     sub: ['New draft drops the fossil-fuel phase-out; finance', 'text weakened. Talks may run into the weekend.'] },
 ];
 
 const cards = [
-  { n: 4, region: 'ASIA', place: 'TAIPEI · MARKETS', src: 'closing prices', art: markets, lon: 121.5, lat: 25.0,
-    head: ['AI sell-off sinks', 'Asian stock markets'], sub: 'Taiex has worst week since 1991.' },
-  { n: 5, region: 'EUROPE', place: 'BRUSSELS · DIPLOMACY', src: 'No 10', art: ukEu, lon: 4.4, lat: 50.8,
-    head: ['UK and EU agree a', 'post-Brexit reset deal'], sub: 'Youth visas, food trade, carbon link.' },
-  { n: 6, region: 'EUROPE', place: 'POLAND · SECURITY', src: 'TVP World', art: poland, lon: 22.6, lat: 51.2,
-    head: ['Russian cruise missile', 'falls inside Poland'], sub: 'Kh-101 near Nowy Lipowiec; none hurt.' },
-  { n: 7, region: 'MIDDLE EAST', place: 'IRAQ · SECURITY', src: 'Al Jazeera', art: iraq, lon: 44.3, lat: 32.9,
+  { n: 4, region: 'ASIA', place: 'TAIPEI · MARKETS', f: 'Markets', sure: 'OFFICIAL', src: 'exchange closes', art: markets, lon: 121.5, lat: 25.0,
+    head: ['AI sell-off sinks', 'Asian stock markets'], sub: 'Taiex −6.2%; Kospi −5.2%.' },
+  { n: 5, region: 'EUROPE', place: 'BRUSSELS · DIPLOMACY', f: 'Diplomacy', sure: 'OFFICIAL', src: 'Downing Street', art: ukEu, lon: 4.4, lat: 50.8,
+    head: ['UK and EU agree a', 'post-Brexit reset deal'], sub: 'Youth visas, food and carbon links.' },
+  { n: 6, region: 'EUROPE', place: 'POLAND · SECURITY', f: 'Security', sure: 'CONFIRMED', src: 'TVP, Notes from Poland', art: poland, lon: 22.6, lat: 51.2,
+    head: ['Russian cruise missile', 'falls inside Poland'], sub: 'Near Nowy Lipowiec; no one hurt.' },
+  { n: 7, region: 'MIDDLE EAST', place: 'IRAQ · SECURITY', f: 'Security', sure: 'CONFIRMED', src: 'Al Jazeera, Ynet', art: iraq, lon: 44.3, lat: 32.9,
     head: ['Iraqi forces enter a', 'militia stronghold'], sub: 'Troops deploy in Jurf al-Sakhar.' },
-  { n: 8, region: 'EUROPE', place: 'ITALY · LABOUR', src: 'Reuters', art: italy, lon: 12.5, lat: 41.9,
-    head: ['General strike across', 'Italy over 2027 budget'], sub: 'Thousands march in dozens of cities.' },
-  { n: 9, region: 'ASIA', place: 'TOKYO · ECONOMY', src: 'official data', art: japan, lon: 139.7, lat: 35.7,
-    head: ['Japan inflation rises', 'to 2.3% in October'], sub: 'Fastest pace this year; core CPI 2.2%.' },
-  { n: 10, region: 'AMERICAS', place: 'EL SALVADOR · POLITICS', src: 'UPI', art: bukele, lon: -89.2, lat: 13.7,
+  { n: 8, region: 'EUROPE', place: 'ITALY · LABOUR', f: 'Labour', sure: 'REPORTED', src: 'Reuters', art: italy, lon: 12.5, lat: 41.9,
+    head: ['General strike across', 'Italy over 2027 budget'], sub: 'Thousands march nationwide.' },
+  { n: 9, region: 'ASIA', place: 'TOKYO · ECONOMY', f: 'Economy', sure: 'OFFICIAL', src: 'statistics bureau', art: japan, lon: 139.7, lat: 35.7,
+    head: ['Japan inflation rises', 'to 2.3% in October'], sub: 'Fastest pace this year; core 2.2%.' },
+  { n: 10, region: 'AMERICAS', place: 'EL SALVADOR · POLITICS', f: 'Politics', sure: 'CONFIRMED', src: 'UPI, AP', art: bukele, lon: -89.2, lat: 13.7,
     head: ['Bukele files to run', 'for a third term'], sub: 'Could stay in power until 2033.' },
-  { n: 11, region: 'AFRICA', place: 'TURKANA · ENERGY', src: 'KBC', art: kenya, lon: 35.6, lat: 3.1,
-    head: ['Kenya starts drilling', 'for its first crude oil'], sub: 'First oil is targeted for 1 December.' },
-  { n: 12, region: 'OCEANIA', place: 'WELLINGTON · CRICKET', src: 'AFP', art: cricket, lon: 174.8, lat: -41.3,
-    head: ['Phillips hits 118 as', 'NZ make 368 v India'], sub: 'Day 2: India reply 159-1 at stumps.' },
-  { n: 13, region: 'AFRICA', place: 'SENEGAL · MIGRATION', src: 'Al Jazeera', art: senegal, lon: -17.4, lat: 14.7,
-    head: ['Four bodies found after', 'migrant boat capsizes'], sub: 'Search goes on off Yenne, near Dakar.' },
+  { n: 11, region: 'AFRICA', place: 'TURKANA · ENERGY', f: 'Energy', sure: 'CONFIRMED', src: 'KBC, Citizen', art: kenya, lon: 35.6, lat: 3.1,
+    head: ['Kenya starts drilling', 'for its first crude oil'], sub: 'First oil targeted for 1 December.' },
+  { n: 12, region: 'OCEANIA', place: 'WELLINGTON · CRICKET', f: 'Sport', sure: 'OFFICIAL', src: 'scorecard', art: cricket, lon: 174.8, lat: -41.3,
+    head: ['Phillips hits 118 as', 'NZ make 368 v India'], sub: 'India 159-1 at stumps on day 2.' },
+  { n: 13, region: 'AFRICA', place: 'SENEGAL · MIGRATION', f: 'Migration', sure: 'REPORTED', src: 'Al Jazeera', art: senegal, lon: -17.4, lat: 14.7,
+    head: ['Four bodies found after', 'migrant boat capsizes'], sub: 'Search goes on off Yenne.' },
 ];
 
 const briefs = [
-  ['ASIA', 'Seoul', 'ruling party adopts plan to impeach the chief justice'],
-  ['ASIA', 'Beijing', 'loan prime rates held for an 18th straight month'],
-  ['ASIA', 'Shenzhen', 'Xi hails a ‘turnaround’ with Australia’s Albanese'],
-  ['ASIA', 'Shenzhen', 'Indonesia’s Prabowo, Xi discuss South China Sea'],
-  ['ASIA', 'Tokyo', 'SoftBank shares plunge 15% in morning trade'],
-  ['ASIA', 'Jakarta', 'Google asked to explain 19,000 YouTube removals'],
-  ['MIDDLE EAST', 'Hormuz', 'tanker hit by a projectile off Khasab, UKMTO says'],
-  ['MIDDLE EAST', 'Gaza', 'civil defence says Israeli strikes killed six'],
-  ['MIDDLE EAST', 'Lebanon', 'Israel says it hit a Hezbollah site in the Bekaa'],
-  ['MIDDLE EAST', 'Saudi Arabia', 'coalition says it downed a missile in the south'],
-  ['AFRICA', 'Malawi', 'fuel crisis brings overnight queues at the pumps'],
-  ['AFRICA', 'South Africa', 'police data: murders down 3.5%, still 60 a day'],
-  ['AFRICA', 'Abuja', 'court bars Atiku’s new evidence against Tinubu'],
-  ['AFRICA', 'Uganda', 'police told to enforce Ebola ban on rallies'],
-  ['AMERICAS', 'Washington', 'Trump accuses Iran of bad-faith peace talks'],
-  ['AMERICAS', 'New York', 'Anthropic slides about 9% in early trading'],
-  ['AMERICAS', 'Port-au-Prince', 'police say a raid killed 34 gang suspects'],
-  ['AMERICAS', 'Las Vegas', 'Russell fastest in final Grand Prix practice'],
-  ['AMERICAS', 'Los Angeles', 'magnitude 4.4 quake near downtown'],
-  ['EUROPE', 'Germany', 'pupils walk out over the military service law'],
-  ['EUROPE', 'London', 'retail sales up 0.7%; borrowing £17.0bn in October'],
-  ['EUROPE', 'Turin', 'Alcaraz beats Cobolli 6-4 6-1, into ATP Finals semis'],
-  ['EUROPE', 'Barcelona', 'pancreatic cancer pill trial: 60.7% respond'],
-  ['OCEANIA', 'Sydney', 'man, 35, charged with terrorism offences'],
-  ['OCEANIA', 'Bougainville', 'Rio Tinto pledges US$250m for Panguna clean-up'],
-  ['GLOBAL', 'Antalya', '75 nations back a ‘35 by 35’ electricity goal'],
-  ['GLOBAL', 'UN', 'World Children’s Day marked around the globe'],
-  ['GLOBAL', 'Space', 'BepiColombo on final approach to Mercury'],
-].map(([region, place, line], i) => ({ n: 14 + i, region, place, line }));
+  ['ASIA', 'Courts', 'Seoul', 'ruling party to seek chief justice’s removal'],
+  ['ASIA', 'Economy', 'Beijing', 'loan prime rates held for an 18th month'],
+  ['ASIA', 'Diplomacy', 'Shenzhen', 'Xi hails ‘turnaround’ in Australia ties'],
+  ['ASIA', 'Diplomacy', 'Shenzhen', 'Prabowo, Xi discuss South China Sea'],
+  ['ASIA', 'Diplomacy', 'New Delhi', 'first Pakistani minister since 2025 war'],
+  ['ASIA', 'Markets', 'Tokyo', 'SoftBank shares plunge 15% in morning trade'],
+  ['ASIA', 'Markets', 'Hong Kong', 'Hang Seng falls 1.9%, nears bear market'],
+  ['ASIA', 'Tech', 'Jakarta', 'Google quizzed on 19,000 YouTube removals'],
+  ['MIDDLE EAST', 'Shipping', 'Hormuz', 'tanker hit off Khasab, UKMTO says'],
+  ['MIDDLE EAST', 'War', 'Gaza', 'civil defence says Israeli strikes killed six'],
+  ['MIDDLE EAST', 'War', 'Lebanon', 'Israel says it hit Hezbollah site in Bekaa'],
+  ['MIDDLE EAST', 'War', 'Saudi Arabia', 'coalition says it downed a missile'],
+  ['AFRICA', 'Energy', 'Malawi', 'fuel crisis brings overnight pump queues'],
+  ['AFRICA', 'Crime', 'South Africa', 'murders down 3.5%, still 60 a day'],
+  ['AFRICA', 'Courts', 'Abuja', 'court bars Atiku’s new evidence on Tinubu'],
+  ['AFRICA', 'Health', 'Uganda', 'police told to enforce Ebola ban on rallies'],
+  ['AMERICAS', 'Diplomacy', 'Washington', 'Trump says Iran negotiates in bad faith'],
+  ['AMERICAS', 'Markets', 'Wall Street', 'Nasdaq futures −1.6%; AMD −7% early'],
+  ['AMERICAS', 'Markets', 'New York', 'Anthropic slides about 9% in early trading'],
+  ['AMERICAS', 'Crime', 'Haiti', 'police say raid killed 34 gang suspects'],
+  ['AMERICAS', 'Disaster', 'Peru', 'magnitude 6.7 quake shakes Lima; none hurt'],
+  ['AMERICAS', 'Disaster', 'Los Angeles', 'magnitude 4.4 quake near downtown'],
+  ['AMERICAS', 'Economy', 'Santiago', 'peso at 1,022 a dollar, weakest since 2022'],
+  ['AMERICAS', 'Sport', 'Las Vegas', 'Russell fastest in final F1 practice'],
+  ['EUROPE', 'Politics', 'Germany', 'pupils strike over military service law'],
+  ['EUROPE', 'Economy', 'London', 'October retail sales up 0.7%, ONS says'],
+  ['EUROPE', 'Sport', 'Turin', 'Alcaraz beats Cobolli, into ATP Finals semis'],
+  ['EUROPE', 'Health', 'Barcelona', 'cancer pill trial sees 60.7% respond'],
+  ['OCEANIA', 'Security', 'Sydney', 'man, 35, charged with terrorism offences'],
+  ['OCEANIA', 'Business', 'Sydney', 'David Jones issues 1,600 redundancy notices'],
+  ['OCEANIA', 'Mining', 'Bougainville', 'Rio Tinto pledges US$250m clean-up'],
+  ['GLOBAL', 'Climate', 'Antalya', '75 nations back ‘35 by 35’ power goal'],
+  ['GLOBAL', 'Climate', 'Antalya', 'Panama vows to block a weak COP31 text'],
+  ['GLOBAL', 'Society', 'UN', 'World Children’s Day marked around the globe'],
+  ['GLOBAL', 'Space', 'Orbit', 'SpaceX Dragon cargo ship undocks from ISS'],
+  ['GLOBAL', 'Space', 'Space', 'BepiColombo on final approach to Mercury'],
+].map(([region, f, place, line], i) => ({ n: 14 + i, region, f, place, line }));
 
 const stories = [...leads, ...cards, ...briefs];
 const total = stories.length;
+const fieldCount = new Set(stories.map((s) => s.f)).size;
 
-// The day in six figures, each one taken from a story on the page.
-const figures = [
-  ['3', 'Dnipro bridges hit in Kyiv'],
-  ['8', 'killed across Ukraine'],
-  ['−6.2%', 'Taiwan’s Taiex at the close'],
-  ['2.3%', 'Japan’s inflation, October'],
-  ['18', 'months China has held rates'],
-  ['118', 'Glenn Phillips v India'],
+// The day by the clock, in UTC: each entry is a story on the page.
+const clock = [
+  ['OVERNIGHT', 'Missiles hit Kyiv bridges'],
+  ['02:30 UTC', 'Akvan makes landfall'],
+  ['05:30 UTC', 'Taipei closes −6.2%'],
+  ['07:00 UTC', 'UK retail sales +0.7%'],
+  ['15:00 UTC', 'Tanker hit in Hormuz'],
+  ['NIGHT', 'COP31: still no deal'],
+];
+
+// Older news that is not on the page, each with the day it broke.
+const older = [
+  'Trump–Xi–Putin declaration, Shenzhen',
+  'World Court’s Myanmar genocide ruling',
+  'Anthropic’s stock-market debut',
+  'Denmark’s Greenland defence vote',
+  'Missile strike on Riyadh’s tallest tower',
+  'US Senate’s Iran war-powers vote',
 ];
 
 // ---------------------------------------------------------------- page pieces
 
 function masthead() {
   return [
-    text(16, 30, 'THE WORLD IN ONE DAY', 14, { bold: true, ls: 2.500 }),
-    text(1008, 30, `${total} STORIES · 7 REGIONS · EVERY ONE FROM THIS FRIDAY`, 12.500, { bold: true, ls: 1, fill: GREY, anchor: 'end' }),
-    `<rect x="16" y="38" width="992" height="74" fill="${INK}"/>`,
-    text(512, 96, 'FRIDAY 20 NOVEMBER 2026', 63, { serif: true, bold: true, fill: '#ffffff', anchor: 'middle' }),
-    text(512, 131, 'Missiles on Kyiv’s bridges  ·  Cyclone Akvan ashore in India  ·  COP31 stuck on its last day  ·  AI sell-off  ·  UK–EU reset',
-      13.500, { serif: true, italic: true, fill: RED, anchor: 'middle' }),
-    `<line x1="16" y1="140" x2="1008" y2="140" stroke="${INK}" stroke-width="2"/>`,
+    text(16, 27, 'THE WORLD IN ONE DAY', 13.500, { bold: true, ls: 2.500 }),
+    text(1008, 27, `${total} STORIES · 7 REGIONS · ${fieldCount} FIELDS · EVERY ONE FROM THIS FRIDAY`, 12, { bold: true, ls: 1, fill: GREY, anchor: 'end' }),
+    `<rect x="16" y="34" width="992" height="70" fill="${INK}"/>`,
+    text(512, 90, 'FRIDAY 20 NOVEMBER 2026', 60, { serif: true, bold: true, fill: '#ffffff', anchor: 'middle' }),
   ].join('\n');
 }
 
-function figureStrip() {
-  const y = 146;
-  const w = 992 / figures.length;
-  return figures.map(([n, label], i) => {
-    const x = 16 + i * w;
-    return `<rect x="${x.toFixed(1)}" y="${y}" width="3" height="38" fill="${RED}"/>` +
-      text((x + 10).toFixed(1), y + 21, n, 24, { serif: true, bold: true }) +
-      text((x + 10).toFixed(1), y + 35, label, 10.500, { fill: GREY });
-  }).join('\n');
+/** A chip saying how sure a drawn story is, followed by who stands behind it. */
+function sureTag(x, y, s, size = 8.500) {
+  const w = Math.round(s.sure.length * size * 0.700) + 8;
+  return `<rect x="${x}" y="${y - size - 1}" width="${w}" height="${size + 4}" rx="2" fill="${SURE[s.sure]}"/>` +
+    text(x + 4, y, s.sure, size, { bold: true, fill: '#ffffff', fit: w - 8 }) +
+    text(x + w + 5, y, s.src, size + 0.500, { bold: true, fill: GREY });
 }
 
-function regionBar() {
-  const y = 190;
-  const gap = 3;
-  const names = Object.keys(REGION);
-  const unit = (992 - gap * (names.length - 1)) / total;
-  let x = 16;
-  return names.map((name) => {
-    const count = stories.filter((s) => s.region === name).length;
-    const w = count * unit;
-    const piece = `<rect x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="15" fill="${REGION[name]}"/>` +
-      text((x + w / 2).toFixed(1), y + 11, `${name} ${count}`, 9.500, { bold: true, fill: '#ffffff', anchor: 'middle', ls: 0.500 });
-    x += w + gap;
-    return piece;
-  }).join('\n');
+function clockStrip() {
+  const y = 109;
+  const w = 880 / clock.length;
+  const out = [
+    `<rect x="16" y="${y}" width="104" height="27" fill="${RED}"/>`,
+    text(68, y + 12, 'THE DAY', 10, { bold: true, fill: '#ffffff', anchor: 'middle', ls: 1 }),
+    text(68, y + 23, 'BY THE CLOCK', 9, { bold: true, fill: '#ffffff', anchor: 'middle', ls: 0.500 }),
+    `<line x1="16" y1="${y + 31}" x2="1008" y2="${y + 31}" stroke="${INK}" stroke-width="2"/>`,
+  ];
+  clock.forEach(([when, what], i) => {
+    const x = 128 + i * w;
+    out.push(`<line x1="${x.toFixed(1)}" y1="${y + 1}" x2="${x.toFixed(1)}" y2="${y + 26}" stroke="#b9ad92" stroke-width="1"/>`);
+    out.push(text((x + 7).toFixed(1), y + 11.500, when, 12, { serif: true, bold: true, fill: RED }));
+    out.push(text((x + 7).toFixed(1), y + 24.500, what, 11, { bold: true }));
+  });
+  return out.join('\n');
 }
 
 function leadTile(s, i) {
   const x = 16 + i * 336;
-  const y = 212;
+  const y = 146;
   const color = REGION[s.region];
   return `<g transform="translate(${x} ${y})">
     <svg width="320" height="104" viewBox="0 0 320 104">${s.art()}</svg>
     <rect width="320" height="104" fill="none" stroke="${INK}" stroke-width="1.500"/>
     ${disc(10, 120, s.n, color)}
     ${text(24, 124, `${s.region} · ${s.field}`, 11, { bold: true, ls: 1, fill: color })}
-    ${text(320, 124, s.src, 10, { italic: true, fill: GREY, anchor: 'end' })}
+    ${sureTag(314 - Math.round(s.sure.length * 6.300 + 13 + s.src.length * 5.300), 124, s, 9)}
     ${text(0, 148, s.head[0], 21.500, { serif: true, bold: true })}
     ${text(0, 172, s.head[1], 21.500, { serif: true, bold: true })}
     ${text(0, 191, s.sub[0], 12.500, { fill: GREY })}
@@ -370,17 +392,17 @@ function leadTile(s, i) {
 
 function card(s, i) {
   const x = 16 + (i % 5) * 200.500;
-  const y = 434 + Math.floor(i / 5) * 140;
+  const y = 364 + Math.floor(i / 5) * 160;
   const color = REGION[s.region];
   return `<g transform="translate(${x} ${y})">
     <svg width="190" height="62" viewBox="0 0 190 62">${s.art()}</svg>
     <rect width="190" height="62" fill="none" stroke="${INK}" stroke-width="1.200"/>
     ${disc(8, 76, s.n, color, 7.500)}
-    ${text(20, 79.500, s.place, 9, { bold: true, ls: 0.400, fill: color })}
-    ${text(190, 79.500, s.src, 8.500, { italic: true, fill: GREY, anchor: 'end' })}
+    ${text(20, 79.500, s.place, 9.500, { bold: true, ls: 0.800, fill: color })}
     ${text(0, 99, s.head[0], 15.500, { serif: true, bold: true })}
     ${text(0, 117, s.head[1], 15.500, { serif: true, bold: true })}
-    ${text(0, 132, s.sub, 11, { fill: GREY })}
+    ${text(0, 133, s.sub, 11.500, { fill: GREY })}
+    ${sureTag(0, 148, s)}
   </g>`;
 }
 
@@ -412,48 +434,60 @@ function map(x, y, w, h) {
 }
 
 function lower() {
-  const top = 722;
+  const top = 690;
   const out = [
     `<line x1="16" y1="${top - 6}" x2="1008" y2="${top - 6}" stroke="${INK}" stroke-width="2"/>`,
     text(16, top + 12, 'WHERE IT HAPPENED', 12, { bold: true, ls: 1.500, fill: RED }),
-    map(16, top + 20, 248, 176),
-    text(16, top + 210, 'Pins 1–13 are the drawn stories; colours are the', 9.500, { fill: GREY }),
-    text(16, top + 222, 'regions in the bar under the date.', 9.500, { fill: GREY }),
-    text(278, top + 12, `ALSO ON FRIDAY 20 NOVEMBER 2026 — ${briefs.length} MORE STORIES`, 12, { bold: true, ls: 1.500, fill: RED }),
+    map(16, top + 19, 296, 104),
+    text(326, top + 12, `ALSO ON FRIDAY 20 NOVEMBER 2026 — ${briefs.length} MORE STORIES`, 12, { bold: true, ls: 1.500, fill: RED }),
   ];
+  // the colour of a number is its region
+  Object.entries(REGION).forEach(([name, color], i) => {
+    const kx = 16 + (i % 4) * 74;
+    const ky = top + 135 + Math.floor(i / 4) * 11;
+    out.push(`<circle cx="${kx + 4}" cy="${ky - 3}" r="3.800" fill="${color}"/>`, text(kx + 11, ky, name, 8, { bold: true, fill: GREY }));
+  });
   const rows = Math.ceil(briefs.length / 2);
   briefs.forEach((b, i) => {
     const col = Math.floor(i / rows);
-    const bx = 278 + col * 368; // two columns to the right of the map
-    const by = top + 32 + (i % rows) * 14.900;
-    out.push(disc(bx + 7, by - 4, b.n, REGION[b.region], 6.800));
-    out.push(`<text x="${bx + 19}" y="${by}" font-family="${SANS}" font-size="11.800" fill="${INK}"><tspan font-weight="700">${esc(b.place)}:</tspan> ${esc(b.line)}</text>`);
+    const bx = 326 + col * 342; // two columns to the right of the map and the date check
+    const by = top + 31 + (i % rows) * 15.850;
+    out.push(disc(bx + 7.500, by - 4, b.n, REGION[b.region], 7.200));
+    out.push(`<text x="${bx + 20}" y="${by}" font-family="${SANS}" font-size="12.300" fill="${INK}"><tspan font-weight="700">${esc(b.place)}:</tspan> ${esc(b.line)}</text>`);
   });
   return out.join('\n');
 }
 
 function dateCheck() {
-  const y = 953;
-  return [
-    `<rect x="16" y="${y}" width="992" height="48" fill="#fbf3e1" stroke="${RED}" stroke-width="1.500"/>`,
-    `<rect x="24" y="${y + 6}" width="92" height="17" fill="${RED}"/>`,
-    text(70, y + 18.500, 'DATE CHECK', 11, { bold: true, fill: '#ffffff', anchor: 'middle', ls: 1 }),
-    text(126, y + 18.500, 'Left out on purpose because they broke on Thursday 19 November: the Trump–Xi–Putin declaration in Shenzhen, the ICJ’s Myanmar', 11.300),
-    text(24, y + 31.500, 'genocide ruling, Anthropic’s stock-market debut, Denmark’s Greenland vote and the missile strike on Riyadh’s tallest tower. Not yet happened:', 11.300),
-    text(24, y + 43.500, 'BepiColombo enters Mercury orbit on Saturday 21 November; the Copa Sudamericana final and any final COP31 text also come later.', 11.300),
-    text(16, 1013, 'Every story here happened or was first reported on Friday 20 November 2026. Counts and claims are attributed; figures as reported that day.', 10, { fill: GREY }),
-    text(1008, 1013, 'Sources named on the drawn stories. Original drawings.', 10, { fill: GREY, anchor: 'end' }),
-  ].join('\n');
+  const y = 844;
+  const out = [
+    `<rect x="16" y="${y}" width="296" height="146" fill="#fbf3e1" stroke="${RED}" stroke-width="1.500"/>`,
+    `<rect x="16" y="${y}" width="296" height="18" fill="${RED}"/>`,
+    text(24, y + 13, 'DATE CHECK · LEFT OUT AS OLDER NEWS', 10.500, { bold: true, fill: '#ffffff', ls: 0.800 }),
+  ];
+  older.forEach((what, i) => {
+    const ry = y + 32 + i * 14.500;
+    if (i % 2 === 0) out.push(`<rect x="17" y="${ry - 10.500}" width="294" height="14.500" fill="#f1e3c4"/>`);
+    out.push(text(24, ry, what, 11.300));
+    out.push(text(304, ry, 'Thu 19 Nov', 11.300, { bold: true, fill: RED, anchor: 'end' }));
+  });
+  out.push(
+    `<text x="24" y="${y + 123}" font-family="${SANS}" font-size="11.300" fill="${INK}"><tspan font-weight="700">Not yet:</tspan> BepiColombo enters Mercury orbit</text>`,
+    text(24, y + 136, 'and the Copa Sudamericana final,', 11.300),
+    text(304, y + 136, 'Sat 21 Nov', 11.300, { bold: true, fill: RED, anchor: 'end' }),
+    text(16, 1009, 'Every story happened or was first reported on Friday 20 November 2026. Claims are attributed. Original drawings.', 10.500, { fill: GREY }),
+    `<text x="1008" y="1009" text-anchor="end" font-family="${SANS}" font-size="10.500" fill="${GREY}"><tspan font-weight="700">HOW SURE</tspan>  confirmed: 2+ outlets · official: the body itself · reported: one outlet</text>`,
+  );
+  return out.join('\n');
 }
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
 <rect width="1024" height="1024" fill="${PAPER}"/>
 <rect x="5" y="5" width="1014" height="1014" fill="none" stroke="${INK}" stroke-width="2"/>
 ${masthead()}
-${figureStrip()}
-${regionBar()}
+${clockStrip()}
 ${leads.map(leadTile).join('\n')}
-<line x1="16" y1="427" x2="1008" y2="427" stroke="${INK}" stroke-width="1"/>
+<line x1="16" y1="357" x2="1008" y2="357" stroke="${INK}" stroke-width="1"/>
 ${cards.map(card).join('\n')}
 ${lower()}
 ${dateCheck()}

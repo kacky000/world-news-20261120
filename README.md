@@ -10,9 +10,11 @@ One image that sums up the world's news of **Friday 20 November 2026**, drawn as
 
 ## What is on the page
 
-41 stories, every one of them from that Friday: 3 drawn leads, 10 drawn cards and 28 numbered briefs, with the
-day in six figures, a bar counting the stories by region (all seven have at least three), a pin map and a date
-check. Each drawing carries a name plate, so the story reads from the picture alone. The five biggest:
+49 stories across 7 regions and 22 fields, every one of them from that Friday: 3 drawn leads, 10 drawn cards and
+36 numbered briefs, with the day by the clock in UTC, a pin map and a date check that lists each older story it
+leaves out beside the day it broke. Each drawing carries a name plate, so the story reads from the picture alone,
+and each drawn story carries a tag saying how sure it is (confirmed by two or more outlets, official, or reported
+by one outlet) and who stands behind it. The five biggest:
 
 | Story | Where | Field |
 | --- | --- | --- |
